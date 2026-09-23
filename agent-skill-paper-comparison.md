@@ -1,11 +1,38 @@
 # Traces2MAS调研
 
+## 目录
+
+- [1. 概念辨析](#concepts)
+  - [1.1 Agent 系统自进化层级](#self-improvement-levels)
+  - [1.2 Harness 层级](#harness-levels)
+- [2. Traces2Skill](#traces2skill)
+  - [2.1 三篇重点论文简介](#traces2skill-key-papers)
+    - [2.1.1 MASkills](#maskills)
+    - [2.1.2 Trace2Skill](#trace2skill-paper)
+    - [2.1.3 WikiSkill](#wikiskill)
+- [3. Traces2Topology](#traces2topology)
+  - [3.1 在线](#topology-online)
+  - [3.2 离线](#topology-offline)
+  - [3.3 重点论文介绍](#traces2topology-key-papers)
+    - [3.3.1 MANTA](#manta)
+    - [3.3.2 TacoMAS](#tacomas)
+- [4. Traces2Weights](#traces2weights)
+  - [4.1 蒸馏为单 Agent](#distill-single-agent)
+    - [4.1.1 MAGDi](#magdi)
+    - [4.1.2 AgentArk](#agentark)
+  - [4.2 蒸馏为 Multi-Agent](#distill-multi-agent)
+    - [4.2.1 SMART](#smart)
+    - [4.2.2 MALT](#malt)
+
+<a id="concepts"></a>
 ## 1. 概念辨析
 
+<a id="self-improvement-levels"></a>
 ### 1.1 Agent 系统自进化层级
 
 <img src="assets/agent-self-improvement-levels.png" alt="Agent 系统的自改进层级" width="650">
 
+<a id="harness-levels"></a>
 ### 1.2 Harness 层级
 
 | 层级 | 主要内容 | 回答的问题 |
@@ -17,6 +44,7 @@
 | External Evaluation | 环境、ground truth、最终指标 | 如何独立判断系统是否真正改进 |
 
 
+<a id="traces2skill"></a>
 ## 2. Traces2Skill：从执行轨迹提炼和进化 Agent Skill
 
 | 维度 | Trace2Skill | MemSkill | PolySkill | MASkills | WikiSkill |
@@ -35,8 +63,10 @@
 | 是否需要参数训练 | 否 | 是；训练 Skill selector/controller，但执行 LLM 可保持冻结 | 通常不更新基础 LLM | 不更新基础 LLM；在语言 Skill 空间进行优化 | 否；主要更新外部 wiki 和 Skill artifact |
 | 最大特色 | 全局、并行的轨迹归纳与 consolidation | Skill selection 与 Skill evolution 联合学习 | 将 Skill 的抽象目标与具体实现解耦 | 多智能体、细粒度 Skill credit assignment | 在 raw experience 与 executable Skill 之间增加持久知识层，避免优化历史和失败经验随 Skill 回滚而丢失 |
 
+<a id="traces2skill-key-papers"></a>
 ### 2.1 Traces2Skill 三篇重点论文简介
 
+<a id="maskills"></a>
 #### 2.1.1 MASkills：多智能体轨迹中的 Skill Credit Assignment
 
 - 论文：[MASkills: Continual Skills Optimization for Multi-Agent LLM Systems](https://arxiv.org/abs/2609.02094)
@@ -81,6 +111,7 @@ MASkills 与 Trace2MultiAgent 最接近，因为它已经实现了“多智能�
 因此，Trace2MultiAgent 可以进一步把学习对象从“各 Agent 怎样做”扩展到“团队怎样组织和协作”：从多智能体轨迹中提炼独立的 team-level coordination skill，显式描述动态分工、任务委派、消息压缩、证据交接、冲突解决、结果聚合、验证与停止规则；更进一步，还可以把角色集合与通信拓扑本身纳入候选生成和验证循环。
 
 
+<a id="trace2skill-paper"></a>
 #### 2.1.2 Trace2Skill：从轨迹局部经验归纳可迁移 Skill
 
 - 论文：[Trace2Skill: Distill Trajectory-Local Lessons into Transferable Agent Skills](https://arxiv.org/abs/2603.25158)
@@ -96,6 +127,7 @@ Trace2Skill 关注如何避免根据单条轨迹顺序修改 Skill 所造成的�
 
 Trace2Skill 对 Trace2MultiAgent 的主要启发是“先保留局部 lesson，再进行全局归纳”。扩展到团队场景时，可以把普通执行轨迹替换成包含 spawn、delegate、message、handoff、aggregate 和 stop 等事件的协作轨迹，再把 trajectory-local patch 扩展成 coordination-protocol patch。
 
+<a id="wikiskill"></a>
 #### 2.1.3 WikiSkill：在原始轨迹与可执行 Skill 之间加入持久知识层
 
 - 论文：[WikiSkill: Compiling Agent Experience into Persistent Knowledge for Skill Evolution](https://arxiv.org/abs/2608.27454)
@@ -108,7 +140,10 @@ WikiSkill 解决的问题是：很多 Skill evolution 方法虽然不断分析�
 WikiSkill 类似于在线不断迭代的结构，Trace2Skill 类似于离线迭代。
 
 
+<a id="traces2topology"></a>
 ## 3. Traces2Topology：从协作轨迹改进或生成 Multi-Agent Topology
+
+<a id="topology-online"></a>
 ### 3.1 在线
 
 | 维度 | MANTA | TacoMAS |
@@ -125,12 +160,15 @@ WikiSkill 类似于在线不断迭代的结构，Trace2Skill 类似于离线迭�
 | 是否需要参数训练 | 否 | 否 |
 | 最大特色 | 在固定 Harness 内对当前协作图做可追踪、可回放的实时结构修复 | 明确实现“**单条 Trace 快速更新能力 + 多轮 Traces 慢速更新 Topology**” |
 
+<a id="topology-offline"></a>
 ### 3.2 离线
 EMAS: STABILIZING MULTI-AGENT SYSTEM EVOLU-TION THROUGH EVIDENCE-GUIDED REVISION等
 当前多智能体系统处理一批新任务，留下执行轨迹和准确率、token 成本等反馈。EMAS 据此诊断问题、提出一个候选修改，再把候选系统和当前系统放到同一验证集上比较。符合目标就接受修改，进入新版本；否则保留当前版本。接受的修改会成为后续任务继续使用的系统状态
 
+<a id="traces2topology-key-papers"></a>
 ### 3.3 Traces2Topology 重点论文介绍
 
+<a id="manta"></a>
 #### 3.3.1 MANTA：在任务执行过程中审计 Trace，并有界修复协作拓扑
 
 - 论文：[MANTA: Multi-Agent Network Topology Adaptation for Self-Evolving Multi-Agent Systems](https://arxiv.org/abs/2607.28527)
@@ -169,6 +207,7 @@ MANTA 不是离线搜索一张固定图，也不是用大量原始 Trace 训练 
 
 8. **Reflector：把多次运行的经验写入长期 Playbook。** 每次运行结束只产生 process-only update candidate。系统累积一个 batch 后，Reflector 才重写长期 `topology_skill.md` 中的经验部分；后续任务的 Planner 会重新加载它，用于初始规划和任务内 repair。默认代码配置是每 12 次运行触发一次在线反思，也可以在实验结束后离线反思。
 
+<a id="tacomas"></a>
 #### 3.3.2 TacoMAS：同一 Query 内用多轮推理轨迹在线共进化 Capability 与 Topology
 
 - 论文：[TacoMAS: Test-Time Co-Evolution of Topology and Capability in LLM-based Multi-Agent Systems](https://arxiv.org/abs/2605.09539)
@@ -190,8 +229,10 @@ b.慢时间尺度：更新topology
 Topology 不随每一条 Trace 立即改变，而是先让 capability 在相对固定的结构中连续适应。每经过 `K` 轮，如果当前答案分数仍低于成功阈值，Meta-LLM 才审查最近阶段的多轮轨迹、各 Agent 的贡献历史和 capability 变化，提出受预算约束的结构增量 `Delta T`：
 
 
+<a id="traces2weights"></a>
 ## 4. Traces2Weights：从多智能体轨迹学习模型参数
 
+<a id="distill-single-agent"></a>
 ### 4.1 蒸馏为单 Agent
 
 这类方法在训练阶段运行 Multi-Agent System 收集协作轨迹，随后把团队的推理、辩论、纠错或工具使用能力压缩进一个模型；部署时不再运行原来的完整 MAS。
@@ -208,6 +249,7 @@ Topology 不随每一条 Trace 立即改变，而是先让 capability 在相对�
 | 是否保留原 MAS | 否 | 否 | 不保留原外部 MAS；在一个模型内部模拟 Chain-of-Agents | 否 |
 | 核心目标 | 将昂贵的多 Agent reasoning graph 压缩到小模型 | 把显式 MAS debate 变成单模型的隐式推理和纠错能力 | 将复杂 Agent Framework 内化为可训练的端到端 Agent Foundation Model | 用多 Agent 合成监督数据训练领域 Agent |
 
+<a id="magdi"></a>
 #### 4.1.1 MAGDi：把多智能体讨论图蒸馏到小模型
 
 - 论文：[MAGDi: Structured Distillation of Multi-Agent Interaction Graphs Improves Reasoning in Smaller Language Models](https://arxiv.org/abs/2402.01620)
@@ -237,6 +279,7 @@ MAGDi 的目标是把昂贵的多模型、多轮讨论压缩成一个可独立�
 3. **从交互结构学习**：GCN 编码 MAG 的节点与边，使 Student 利用多轮讨论中的回应、影响和修正关系，而非把所有回答当成互不相关的文本。
 
 
+<a id="agentark"></a>
 #### 4.1.2 AgentArk：以推理过程为中心的 Multi-Agent Distillation
 
 - 论文：[AgentArk: Distilling Multi-Agent Intelligence into a Single LLM Agent](https://arxiv.org/abs/2602.03955)
@@ -331,6 +374,7 @@ Student 为 x 生成一组候选 reasoning outputs
 
 
 
+<a id="distill-multi-agent"></a>
 ### 4.2 蒸馏为 Multi-Agent
 
 这类方法同样把轨迹写入模型权重，但训练后的角色仍在固定 Multi-Agent 流程中协作。这里的“Multi-Agent”指部署时保留显式角色和阶段，不要求每个角色一定使用完全不同的基础模型。
@@ -348,6 +392,7 @@ Student 为 x 生成一组候选 reasoning outputs
 | 是否在线学习 | 否；离线监督训练，推理时使用固定权重 | 否；离线 post-training，推理时使用训练后的角色模型 |
 | 核心目标 | 同时保证单角色的细粒度能力和完整知识处理流程的协同性 | 利用团队结果奖励联合提升多个专门角色的推理能力 |
 
+<a id="smart"></a>
 #### 4.2.1 SMART：用 Long–Short Trajectory Learning 训练固定多角色流水线
 
 - 论文：[Synergistic Multi-Agent Framework with Trajectory Learning for Knowledge-Intensive Tasks](https://arxiv.org/abs/2407.09893)
@@ -406,6 +451,7 @@ x
 
 推理时仍保留显式的四阶段流程。Reconstructor、Locator 和 Generator 可以由同一个经过训练的 LLM 依靠角色 token 分时承担，Retriever 则是独立检索组件。因此 SMART 的输出不是一个取消 MAS 的通用单 Agent，而是**被训练过的角色能力 + 固定的跨角色交接协议**：Short Trace 负责“每个角色会不会做”，Long Trace 负责“这些角色能不能按流水线协同完成任务”。
 
+<a id="malt"></a>
 #### 4.2.2 MALT：从多智能体搜索树生成角色级训练数据
 
 - 论文：[MALT: Improving Reasoning with Multi-Agent LLM Training](https://arxiv.org/abs/2412.01928)
