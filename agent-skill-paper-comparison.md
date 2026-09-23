@@ -4,7 +4,7 @@
 
 ### 1.1 Agent 系统自进化层级
 
-![Agent 系统的自改进层级](assets/agent-self-improvement-levels.png)
+<img src="assets/agent-self-improvement-levels.png" alt="Agent 系统的自改进层级" width="650">
 
 ### 1.2 Harness 层级
 
